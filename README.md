@@ -102,11 +102,11 @@ python3 .claude/skills/ig-metrics/metrics.py instagram/data/posts.json \
     --followers 3200 --tsv instagram/data/posts.tsv --out instagram/audit.md
 ```
 
-o que trava hoje: o plano free do windsor inclui 1 conta conectada e a sua
-tem 4 (2 meta ads, 1 instagram, 1 tiktok). enquanto isso, o conector devolve
-zeros com um aviso, e o script se recusa a auditar. pra liberar, desconecta
-as outras três em https://onboard.windsor.ai/app/ (deixando só o instagram)
-ou faz upgrade. depois é só pedir "puxa minhas métricas".
+a conta do windsor é a `jovvitcg@gmail.com`, com dois conectores: `instagram`
+(insights) e `instagram_public` (o que o perfil mostra, usado pra completar
+curtidas e comentários). o plano free do windsor inclui 1 fonte; se as
+leituras pausarem, o conector devolve zeros com um aviso e o script se
+recusa a auditar. aí é manter só o `instagram` ou fazer upgrade.
 
 `instagram/data/` e `instagram/audit.md` ficam fora do git porque são
 métricas pessoais.

@@ -20,30 +20,34 @@ ele que as métricas entram. nada é postado, só lido.
 
 ## o que já está vinculado
 
-- conector: `instagram` (windsor.ai, ferramentas `mcp__Windsor_ai__*`)
-- conta: `17841480042928495`, "Joao Vitor (jovvi.tcg)"
-- também conectados na mesma conta windsor: meta ads (2 contas) e tiktok
-  orgânico ("Jovvi"). isso importa por causa do plano, veja abaixo.
-
-se o jovvi perguntar "como vinculo meu insta", a resposta é: já está. se um
-dia precisar reconectar, `get_connector_connect_info("instagram")` devolve o
-link de autorização. nunca peça senha nem token no chat.
+- conta windsor.ai: `jovvitcg@gmail.com` (plano Trial em 25/09/2026). a conta
+  antiga, do gmail pessoal, ficou pra trás com 4 fontes e leitura pausada.
+- conector `instagram` (insights, o completo): conta `17841480042928495`,
+  "jovvi.tcg". alcance, views, salvamentos, envios, retenção, público, diário.
+- conector `instagram_public` (o que o perfil mostra): conta `jovvi.tcg`.
+  curtidas, comentários, legenda, data, seguidores. serve de reserva e pra
+  completar curtidas e comentários, que a api de insights costuma devolver
+  vazios.
+- ferramentas: `mcp__Windsor_ai__*`. `get_connectors()` mostra o que está
+  ligado. se um dia precisar reconectar, `get_connector_connect_info("instagram")`
+  devolve o link de autorização. nunca peça senha nem token no chat.
 
 se as ferramentas `mcp__Windsor_ai__*` não estiverem na sessão, o conector não
 está disponível ali. nesse caso caia no que o `/ig-audit` já faz: peça print
 ou export dos insights.
 
-## a trava do plano free
+## a trava do plano
 
-o plano Free do windsor inclui **1 conta conectada**. com 4 conectadas, as
-leituras ficam pausadas e o conector devolve **zeros com um aviso em texto**
-("These are not your real numbers: reads are paused"). isso parece dado e não
-é. o `metrics.py` detecta e sai com código 3. regras:
+o plano Free do windsor inclui **1 fonte conectada**. quando o Trial acabar,
+se a conta cair pra Free com duas fontes, as leituras pausam e o conector
+devolve **zeros com um aviso em texto** ("These are not your real numbers:
+reads are paused"). isso parece dado e não é. o `metrics.py` detecta e sai
+com código 3. regras:
 
 - **nunca** apresente esses zeros como métrica.
-- diga o que resolve: desconectar as outras contas em
-  https://onboard.windsor.ai/app/ (mantendo só o instagram) ou fazer upgrade
-  em https://onboard.windsor.ai/app/pricing. a escolha é dele.
+- diga o que resolve: manter só o `instagram` (desconectar o `instagram_public`
+  em https://onboard.windsor.ai/app/) ou fazer upgrade em
+  https://onboard.windsor.ai/app/pricing. a escolha é dele.
 - depois de ele mexer, rode de novo. `get_connectors()` mostra o que ficou.
 
 ## as três consultas
@@ -82,9 +86,17 @@ os campos vêm de `get_fields("instagram")`. não invente nome de campo.
 
 ```bash
 python3 metrics.py instagram/data/posts.json --followers {followers_count} \
+    --merge-public instagram/data/posts_public.json \
     --tsv instagram/data/posts.tsv --out instagram/audit.md
 python3 ../ig-viral/swipe.py instagram/data/posts.tsv      # fórmula e nota de gancho por post
 ```
+
+o `--merge-public` pede uma quarta consulta, no conector `instagram_public`,
+conta `jovvi.tcg`, mesmo `date_preset`, campos `media_timestamp, media_type,
+media_product_type, media_permalink, media_caption, media_like_count,
+media_comments_count`, salva em `instagram/data/posts_public.json`. se só o
+público estiver disponível, o `metrics.py` aceita esse arquivo direto e
+ranqueia por curtidas, avisando no cabeçalho.
 
 o `metrics.py` imprime a tabela do `/ig-audit` já calculada: múltiplo sobre a
 mediana da própria conta, envios por alcance, salvamentos por alcance,
@@ -101,6 +113,10 @@ em vez de estimar.
   flag, como no resto do pacote.
 - `media_follows`, `media_profile_visits` e `media_profile_activity` não vêm
   pra reels. célula vazia, não zero.
+- a nota de gancho do `swipe.py` sobre legenda não vale: legenda não é o gancho
+  falado. a régua que vale é a retenção aos 3s, que é medida.
+- a avaliação de 25/09/2026 está em `instagram/avaliacao-2026-09-25.md`
+  (fora do git). use como linha de base pra comparar a próxima.
 - `media_reel_skip_rate` pode chegar como 0-100 ou 0-1. o script normaliza.
 - métricas de post são acumuladas desde a publicação, não do período. o
   `date_preset` filtra quais posts entram, não quanto de cada post.

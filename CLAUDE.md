@@ -28,12 +28,12 @@ pokémon tcg no brasil (@jovvi.tcg).
   andou, métricas, insights, seguidores, alcance) usa as skills `ig-*` sem
   esperar o jovvi chamar pelo nome. `/ig-human` passa em tudo antes de mostrar.
 - pra ler métricas, use `ig-metrics`: o conector windsor.ai (`instagram`,
-  conta `17841480042928495`, @jovvi.tcg) já está vinculado à conta do claude.
-  se as ferramentas `mcp__Windsor_ai__*` estiverem na sessão, não peça pra
-  colar insights, puxe.
+  conta `17841480042928495`, @jovvi.tcg, mais o `instagram_public` como
+  reserva) já está vinculado à conta do claude. se as ferramentas
+  `mcp__Windsor_ai__*` estiverem na sessão, não peça pra colar insights, puxe.
 - se o conector devolver "not your real numbers" ou só zeros, as leituras
-  estão pausadas no plano free do windsor (1 conta inclusa, 4 conectadas).
-  avise, aponte o que resolve e não use os zeros.
+  estão pausadas pelo plano do windsor (o free inclui 1 fonte). avise,
+  aponte o que resolve e não use os zeros.
 - `instagram/data/` e `instagram/audit.md` ficam fora do git: são métricas
   pessoais.
 

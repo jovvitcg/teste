@@ -10,15 +10,21 @@ salvamentos por alcance, seguidores ganhos por alcance e, nos reels, a
 retenção nos 3 segundos e o tempo médio assistido.
 
 entrada: o json do get_data (o objeto inteiro com "result", ou só a lista).
-campos esperados por post:
-  timestamp, media_type, media_product_type, media_permalink, media_caption,
-  media_reach, media_views, media_total_like_count, media_total_comments_count,
-  media_saved, media_shares, media_reel_avg_watch_time, media_reel_skip_rate,
-  media_follows
+aceita dois esquemas:
+  connector "instagram" (insights, o completo): timestamp, media_type,
+    media_product_type, media_permalink, media_caption, media_reach, media_views,
+    media_total_like_count, media_total_comments_count, media_saved, media_shares,
+    media_reel_avg_watch_time, media_reel_skip_rate, media_follows
+  connector "instagram_public" (só o que o perfil mostra): media_timestamp,
+    media_type, media_product_type, media_permalink, media_caption,
+    media_like_count, media_comments_count
+sem views e alcance, o múltiplo é sobre a mediana de curtidas, e envios,
+salvamentos, retenção e tempo assistido ficam vazios. o cabeçalho avisa.
 
 uso
   python3 metrics.py posts.json
   python3 metrics.py posts.json --followers 3200 --account @jovvi.tcg
+  python3 metrics.py posts.json --merge-public posts_public.json   # curtidas e comentários
   python3 metrics.py posts.json --tsv posts.tsv        # pro swipe.py
   python3 metrics.py posts.json --out audit.md         # relatório em markdown
   python3 metrics.py posts.json --json
@@ -78,6 +84,8 @@ def counts(items):
 
 
 def build(rows, followers=None, account=""):
+    public = not any(r.get("media_views") not in (None, "") or r.get("media_reach") not in (None, "")
+                     for r in rows)
     posts = []
     for r in rows:
         views = num(r.get("media_views"))
@@ -92,15 +100,20 @@ def build(rows, followers=None, account=""):
         shares = num(r.get("media_shares"))
         saves = num(r.get("media_saved"))
         follows = num(r.get("media_follows"))
+        likes = num(r.get("media_total_like_count") if r.get("media_total_like_count") not in (None, "")
+                    else r.get("media_like_count"))
+        comments = num(r.get("media_total_comments_count") if r.get("media_total_comments_count") not in (None, "")
+                       else r.get("media_comments_count"))
         posts.append({
-            "date": (r.get("timestamp") or "")[:10],
+            "date": (r.get("timestamp") or r.get("media_timestamp") or "")[:10],
             "type": r.get("media_type") or "",
             "permalink": r.get("media_permalink") or "",
             "hook": hook_of(r.get("media_caption")),
             "views": int(views),
             "reach": int(reach),
-            "likes": int(num(r.get("media_total_like_count"))),
-            "comments": int(num(r.get("media_total_comments_count"))),
+            "likes": int(likes),
+            "comments": int(comments),
+            "eng_per_follower": ((likes + comments) / followers) if followers else None,
             "saves": int(saves),
             "shares": int(shares),
             "follows": None if is_reel else int(follows),   # a api não dá follows pra reel
@@ -110,10 +123,11 @@ def build(rows, followers=None, account=""):
             "saves_per_reach": (saves / reach) if reach else None,
             "follows_per_reach": None if is_reel else ((follows / reach) if reach else None),
         })
-    views_list = [p["views"] for p in posts if p["views"] > 0]
-    median = statistics.median(views_list) if views_list else 0
+    metric = "likes" if public else "views"
+    values = [p[metric] for p in posts if p[metric] > 0]
+    median = statistics.median(values) if values else 0
     for p in posts:
-        p["outlier"] = round(p["views"] / median, 2) if median else None
+        p["outlier"] = round(p[metric] / median, 2) if median else None
     ranked = sorted(posts, key=lambda p: -(p["outlier"] or 0))
     third = max(1, len(ranked) // 3)
     top, bottom = ranked[:third], ranked[-third:]
@@ -122,11 +136,14 @@ def build(rows, followers=None, account=""):
         vals = [i[key] for i in items if i.get(key) is not None]
         return statistics.median(vals) if vals else None
 
-    keys = ("hold_3s", "avg_watch_s", "sends_per_reach", "saves_per_reach", "follows_per_reach")
+    keys = ("hold_3s", "avg_watch_s", "sends_per_reach", "saves_per_reach", "follows_per_reach",
+            "eng_per_follower")
     return {
         "account": account,
         "followers": followers,
         "n": len(ranked),
+        "public": public,
+        "metric": metric,
         "median_views": median,
         "posts": ranked,
         "by_sends": sorted([p for p in posts if p["sends_per_reach"] is not None],
@@ -145,29 +162,42 @@ def secs(x):
 
 
 def render(a, out=sys.stdout):
+    what = "curtidas" if a["public"] else "views"
     head = (f"AUDIT  ·  {a['n']} posts  ·  {a['account'] or 'conta'}  ·  "
-            f"mediana de views {int(a['median_views']):,}"
+            f"mediana de {what} {int(a['median_views']):,}"
             + (f"  ·  seguidores {a['followers']:,}" if a["followers"] else ""))
     print("\n" + head, file=out)
     print("=" * max(len(head), 96), file=out)
-    print(f"  {'mult':>6}  {'views':>8}  {'alcance':>8}  {'env/alc':>7}  {'salv/alc':>8}  "
-          f"{'seg/alc':>7}  {'hold3s':>6}  {'tempo':>6}  {'tipo':<8} {'data':<10} hook", file=out)
-    for p in a["posts"]:
-        mult = f"{p['outlier']:.1f}x" if p["outlier"] else "    ?"
-        hold = f"{p['hold_3s'] * 100:5.0f}%" if p["hold_3s"] is not None else "    - "
-        print(f"  {mult:>6}  {p['views']:>8,}  {p['reach']:>8,}  {pct(p['sends_per_reach']):>7}  "
-              f"{pct(p['saves_per_reach']):>8}  {pct(p['follows_per_reach']):>7}  {hold:>6}  "
-              f"{secs(p['avg_watch_s']):>6}  {p['type'][:8]:<8} {p['date']:<10} "
-              f"\"{p['hook'][:60]}\"", file=out)
+    if a["public"]:
+        print("  (instagram_public: sem views, alcance, envios, salvamentos e retenção. "
+              "múltiplo sobre a mediana de curtidas, eng/seg = curtidas+comentários por seguidor)", file=out)
+        print(f"  {'mult':>6}  {'curtidas':>8}  {'coment':>7}  {'eng/seg':>7}  {'tipo':<8} {'data':<10} hook",
+              file=out)
+        for p in a["posts"]:
+            mult = f"{p['outlier']:.1f}x" if p["outlier"] else "    ?"
+            print(f"  {mult:>6}  {p['likes']:>8,}  {p['comments']:>7,}  {pct(p['eng_per_follower']):>7}  "
+                  f"{p['type'][:8]:<8} {p['date']:<10} \"{p['hook'][:60]}\"", file=out)
+    else:
+        print(f"  {'mult':>6}  {'views':>8}  {'alcance':>8}  {'env/alc':>7}  {'salv/alc':>8}  "
+              f"{'seg/alc':>7}  {'hold3s':>6}  {'tempo':>6}  {'tipo':<8} {'data':<10} hook", file=out)
+        for p in a["posts"]:
+            mult = f"{p['outlier']:.1f}x" if p["outlier"] else "    ?"
+            hold = f"{p['hold_3s'] * 100:5.0f}%" if p["hold_3s"] is not None else "    - "
+            print(f"  {mult:>6}  {p['views']:>8,}  {p['reach']:>8,}  {pct(p['sends_per_reach']):>7}  "
+                  f"{pct(p['saves_per_reach']):>8}  {pct(p['follows_per_reach']):>7}  {hold:>6}  "
+                  f"{secs(p['avg_watch_s']):>6}  {p['type'][:8]:<8} {p['date']:<10} "
+                  f"\"{p['hook'][:60]}\"", file=out)
     print("-" * max(len(head), 96), file=out)
-    print("TERÇO DE CIMA vs TERÇO DE BAIXO (mediana), ranqueado por múltiplo sobre a mediana de views",
+    print(f"TERÇO DE CIMA vs TERÇO DE BAIXO (mediana), ranqueado por múltiplo sobre a mediana de {what}",
           file=out)
     labels = {"hold_3s": "retenção aos 3s", "avg_watch_s": "tempo médio assistido",
               "sends_per_reach": "envios por alcance", "saves_per_reach": "salvamentos por alcance",
-              "follows_per_reach": "seguidores por alcance"}
+              "follows_per_reach": "seguidores por alcance", "eng_per_follower": "engajamento por seguidor"}
     fmt = {"hold_3s": pct, "avg_watch_s": secs, "sends_per_reach": pct,
-           "saves_per_reach": pct, "follows_per_reach": pct}
+           "saves_per_reach": pct, "follows_per_reach": pct, "eng_per_follower": pct}
     for k, (t, b) in a["top_vs_bottom"].items():
+        if t is None and b is None:
+            continue
         print(f"  {labels[k]:<26} cima {fmt[k](t).strip():>7}   baixo {fmt[k](b).strip():>7}", file=out)
     print(f"  {'formato':<26} cima {a['formats']['top']}   baixo {a['formats']['bottom']}", file=out)
     if a["by_sends"]:
@@ -181,7 +211,11 @@ def render(a, out=sys.stdout):
     t, b = a["top_vs_bottom"]["hold_3s"]
     if t is not None and b is not None and t - b >= 0.10:
         notes.append("Retenção aos 3s separa cima e baixo por 10 pontos ou mais: é o gancho, e o resto é distração.")
-    notes.append("Views cru é o número menos útil da tela. Ranqueie por múltiplo e por envios por alcance.")
+    if a["public"]:
+        notes.append("Curtida é o que o perfil público mostra. Pra views, alcance, envios e retenção, "
+                     "conecte o conector \"instagram\" (insights) no windsor e rode de novo.")
+    else:
+        notes.append("Views cru é o número menos útil da tela. Ranqueie por múltiplo e por envios por alcance.")
     print("", file=out)
     for n in notes:
         print(f"  - {n}", file=out)
@@ -189,14 +223,17 @@ def render(a, out=sys.stdout):
 
 
 def to_tsv(a):
-    lines = ["account\tfollowers\tmedian\tviews\thook"]
+    lines = []
+    if a["public"]:
+        lines.append("# instagram_public: a coluna views leva CURTIDAS, e a mediana é de curtidas")
+    lines.append("account\tfollowers\tmedian\tviews\thook")
     for p in a["posts"]:
-        if p["views"] > 0:
+        if p[a["metric"]] > 0:
             lines.append("\t".join([
                 a["account"] or "",
                 str(a["followers"] or ""),
                 str(int(a["median_views"])),
-                str(p["views"]),
+                str(p[a["metric"]]),
                 p["hook"].replace("\t", " "),
             ]))
     return "\n".join(lines) + "\n"
@@ -204,7 +241,8 @@ def to_tsv(a):
 
 def to_markdown(a):
     lines = ["# audit do instagram", "",
-             f"{a['n']} posts de {a['account'] or 'conta'}. mediana de views {int(a['median_views']):,}."
+             f"{a['n']} posts de {a['account'] or 'conta'}. mediana de "
+             f"{'curtidas' if a['public'] else 'views'} {int(a['median_views']):,}."
              + (f" seguidores {a['followers']:,}." if a["followers"] else ""), "",
              "| mult | views | alcance | envios/alc | salv/alc | seg/alc | hold 3s | tempo | tipo | data | hook |",
              "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
@@ -230,10 +268,21 @@ def main():
     ap.add_argument("--account", default="@jovvi.tcg", help="handle, vai na coluna account do TSV")
     ap.add_argument("--tsv", help="escreve o TSV que o swipe.py lê")
     ap.add_argument("--out", help="escreve o relatório em markdown")
+    ap.add_argument("--merge-public", help="json do instagram_public: junta curtidas e comentários por permalink, "
+                                           "porque a api de insights costuma devolver esses dois vazios")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
     rows = load(args.input)
+    if args.merge_public:
+        pub = {r.get("media_permalink"): r for r in load(args.merge_public)}
+        for r in rows:
+            q = pub.get(r.get("media_permalink"))
+            if q:
+                if r.get("media_total_like_count") in (None, ""):
+                    r["media_total_like_count"] = q.get("media_like_count")
+                if r.get("media_total_comments_count") in (None, ""):
+                    r["media_total_comments_count"] = q.get("media_comments_count")
     msg = paused_message(rows)
     if msg:
         print("LEITURAS PAUSADAS NO WINDSOR.AI. estes não são números reais, não use.\n"
@@ -245,7 +294,8 @@ def main():
     if not rows:
         print("nenhum post no período. amplie o date_preset (ex.: last_180dT).", file=sys.stderr)
         sys.exit(2)
-    if all(num(r.get("media_views")) == 0 and num(r.get("media_reach")) == 0 for r in rows):
+    if all(num(r.get("media_views")) == 0 and num(r.get("media_reach")) == 0
+           and num(r.get("media_like_count")) == 0 for r in rows):
         print("todos os posts vieram com views e alcance zero. isso é sinal de leitura pausada ou "
               "de conta sem permissão de insights. confira antes de auditar.", file=sys.stderr)
         sys.exit(3)

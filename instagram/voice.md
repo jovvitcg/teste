@@ -55,6 +55,15 @@ com `{{seu número}}` no lugar.
   tiver, o `beats.py` usa o padrão de 165. em português falado costuma ficar
   entre 140 e 170, então passa `--wpm 150` se o tempo estiver batendo curto.
 
+## o que as legendas reais mostram (observado em 25/09/2026, a confirmar)
+
+as 29 legendas dos últimos 90 dias são curtas, uma linha, em caixa normal, com
+✨ ❤️ 🥺 em quase todas e CAPS quando empolga ("MEU DEUSSSSS EU TIREI UM
+GODPACK"). isso contradiz "emoji: nunca" e "lowercase" acima, que vieram do
+skill de roteiros. até o jovvi decidir: roteiro e texto de tela seguem as
+regras acima; legenda pode seguir o estilo real dele. {{jovvi, confirma qual
+vale pra legenda}}
+
 ## regras de escrita que nunca quebram
 
 - lowercase por padrão. só nome próprio e sigla (TCG, EMS, EX quando é o nome
