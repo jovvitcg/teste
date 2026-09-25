@@ -88,6 +88,29 @@ pra só experimentar, roda `/ig-profile`. ele dá nota ao perfil numa régua de
 | `/ig-repurpose` | um vídeo longo ou podcast vira uma semana de reels e carrosséis |
 | `/ig-audit` | post-mortem do que você já publicou |
 
+## ler as métricas do instagram (`ig-metrics`)
+
+o pacote original não se conecta ao instagram. o skill extra `ig-metrics`
+resolve isso pelo conector windsor.ai que já está vinculado à sua conta do
+claude, com o instagram @jovvi.tcg conectado. quando você falar de métricas,
+insights, "o que andou" ou pedir um audit, ele puxa os posts com alcance,
+views, envios, salvamentos, seguidores ganhos e retenção aos 3s, e monta a
+tabela que o `/ig-audit` usa.
+
+```bash
+python3 .claude/skills/ig-metrics/metrics.py instagram/data/posts.json \
+    --followers 3200 --tsv instagram/data/posts.tsv --out instagram/audit.md
+```
+
+o que trava hoje: o plano free do windsor inclui 1 conta conectada e a sua
+tem 4 (2 meta ads, 1 instagram, 1 tiktok). enquanto isso, o conector devolve
+zeros com um aviso, e o script se recusa a auditar. pra liberar, desconecta
+as outras três em https://onboard.windsor.ai/app/ (deixando só o instagram)
+ou faz upgrade. depois é só pedir "puxa minhas métricas".
+
+`instagram/data/` e `instagram/audit.md` ficam fora do git porque são
+métricas pessoais.
+
 ## as ferramentas que rodam
 
 sem dependência, sem internet, nada sobe. rodam no seu texto, no seu pc.
@@ -99,6 +122,7 @@ python3 .claude/skills/ig-caption/caption.py legenda.txt --keywords "pokemon tcg
 python3 .claude/skills/ig-human/humanize.py rascunho.txt --report
 python3 .claude/skills/ig-human/detect.py rascunho.txt
 python3 .claude/skills/ig-viral/swipe.py coletado.tsv --out instagram/swipe.md
+python3 .claude/skills/ig-metrics/metrics.py instagram/data/posts.json --tsv instagram/data/posts.tsv
 ```
 
 os arquivos de trabalho (`swipe.md`, `log.md`, `plan.md`) ficam em

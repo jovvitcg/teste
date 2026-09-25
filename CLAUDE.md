@@ -1,7 +1,8 @@
 # teste (jovvi tcg)
 
 este repositório guarda o pacote instagram-agent-skill (13 skills `ig-*`, de
-jake schincariol, licença MIT) adaptado pro jovvi, criador de conteúdo de
+jake schincariol, licença MIT), mais o `ig-metrics` que lê as métricas pelo
+conector windsor.ai, adaptado pro jovvi, criador de conteúdo de
 pokémon tcg no brasil (@jovvi.tcg).
 
 ## regras pra qualquer skill `ig-*` rodando aqui
@@ -20,6 +21,21 @@ pokémon tcg no brasil (@jovvi.tcg).
   copiar, e quem posta é o jovvi.
 - preço de carta, cotação, set novo ou lançamento: pesquisar antes de escrever.
   nunca inventar número, nome de cliente ou resultado.
+
+## instagram e métricas
+
+- qualquer prompt sobre instagram (roteiro, legenda, o que postar, o que
+  andou, métricas, insights, seguidores, alcance) usa as skills `ig-*` sem
+  esperar o jovvi chamar pelo nome. `/ig-human` passa em tudo antes de mostrar.
+- pra ler métricas, use `ig-metrics`: o conector windsor.ai (`instagram`,
+  conta `17841480042928495`, @jovvi.tcg) já está vinculado à conta do claude.
+  se as ferramentas `mcp__Windsor_ai__*` estiverem na sessão, não peça pra
+  colar insights, puxe.
+- se o conector devolver "not your real numbers" ou só zeros, as leituras
+  estão pausadas no plano free do windsor (1 conta inclusa, 4 conectadas).
+  avise, aponte o que resolve e não use os zeros.
+- `instagram/data/` e `instagram/audit.md` ficam fora do git: são métricas
+  pessoais.
 
 ## o que foi mudado em relação ao upstream
 
