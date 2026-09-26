@@ -53,9 +53,13 @@ escrevia (`posts.json`, `profile.json`, `daily_reach.json`,
   aí é adicionar a permissão em "permissões e recursos" e gerar o token de novo.
 - o token de longa duração vale 60 dias. `--refresh` imprime o novo, que vai
   pras configurações do ambiente no lugar do antigo.
-- a api não entrega taxa de pulo dos reels de forma garantida. o script tenta
-  `ig_reels_skip_rate`; se a api não tiver, a coluna de retenção aos 3s fica
-  vazia e o tempo médio assistido vira a régua de gancho.
+- a api não entrega taxa de pulo dos reels (confirmado em 26/09/2026: a
+  coluna de retenção aos 3s vem vazia). o tempo médio assistido é a régua de
+  gancho por esse caminho. a retenção aos 3s só existe no windsor.
+- validado em 26/09/2026 contra o windsor: mesmos 29 posts, mesmos números
+  (diferença de um dia de acúmulo), 0 erros de insights, público completo.
+- no `daily_reach.json` o último dia pode vir com `follower_count` 0: a meta
+  fecha esse número com atraso. ignore o último dia ao somar seguidores.
 - stories ficam de fora (só existem 24h). seguidores por post só vem pra
   feed e carrossel, como no windsor.
 - `daily_engagement.json` pela api é o **total do período**, não por dia. o
