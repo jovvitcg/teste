@@ -102,7 +102,18 @@ python3 .claude/skills/ig-metrics/metrics.py instagram/data/posts.json \
     --followers 3200 --tsv instagram/data/posts.tsv --out instagram/audit.md
 ```
 
-a conta do windsor é a `jovvitcg@gmail.com`, com dois conectores: `instagram`
+**caminho principal, grátis:** o `graph.py` puxa direto da api da meta com um
+token do seu app no meta for developers, guardado na variável de ambiente
+`IG_ACCESS_TOKEN` (nas configurações do ambiente do claude, ou no `.env` do
+seu shell no pc, nunca no repositório).
+
+```bash
+python3 .claude/skills/ig-metrics/graph.py --check    # o token funciona?
+python3 .claude/skills/ig-metrics/graph.py            # escreve instagram/data/*.json
+python3 .claude/skills/ig-metrics/graph.py --refresh  # a cada 60 dias
+```
+
+**reserva:** a conta do windsor é a `jovvitcg@gmail.com`, com dois conectores: `instagram`
 (insights) e `instagram_public` (o que o perfil mostra, usado pra completar
 curtidas e comentários). o plano free do windsor inclui 1 fonte; se as
 leituras pausarem, o conector devolve zeros com um aviso e o script se

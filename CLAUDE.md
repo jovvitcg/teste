@@ -27,10 +27,12 @@ pokémon tcg no brasil (@jovvi.tcg).
 - qualquer prompt sobre instagram (roteiro, legenda, o que postar, o que
   andou, métricas, insights, seguidores, alcance) usa as skills `ig-*` sem
   esperar o jovvi chamar pelo nome. `/ig-human` passa em tudo antes de mostrar.
-- pra ler métricas, use `ig-metrics`: o conector windsor.ai (`instagram`,
-  conta `17841480042928495`, @jovvi.tcg, mais o `instagram_public` como
-  reserva) já está vinculado à conta do claude. se as ferramentas
-  `mcp__Windsor_ai__*` estiverem na sessão, não peça pra colar insights, puxe.
+- pra ler métricas, use `ig-metrics`. primeiro caminho: `graph.py`, direto
+  da api da meta, com a variável de ambiente `IG_ACCESS_TOKEN` (se ela existir
+  na sessão). segundo: o conector windsor.ai (`instagram`, conta
+  `17841480042928495`, mais o `instagram_public` como reserva), se as
+  ferramentas `mcp__Windsor_ai__*` estiverem na sessão. em nenhum caso peça pra
+  colar insights, e nunca peça token no chat.
 - se o conector devolver "not your real numbers" ou só zeros, as leituras
   estão pausadas pelo plano do windsor (o free inclui 1 fonte). avise,
   aponte o que resolve e não use os zeros.

@@ -1,8 +1,9 @@
 ---
 name: ig-metrics
 description: >-
-  Lê as métricas reais do Instagram do jovvi (@jovvi.tcg) pelo conector
-  windsor.ai que já está vinculado à conta do Claude, e entrega a tabela que o
+  Lê as métricas reais do Instagram do jovvi (@jovvi.tcg), direto da api da
+  meta com o token IG_ACCESS_TOKEN ou, na falta dele, pelo conector windsor.ai
+  vinculado à conta do Claude, e entrega a tabela que o
   /ig-audit pede: múltiplo sobre a mediana, envios por alcance, retenção aos
   3 segundos, seguidores ganhos por post. Use sempre que o jovvi falar de
   métricas, insights, alcance, views, seguidores, "o que andou", "como foi o
@@ -18,7 +19,49 @@ o pacote original não fala com o instagram. este skill é a ponte: o conector
 windsor.ai da conta do claude já tem o instagram do jovvi vinculado, e é por
 ele que as métricas entram. nada é postado, só lido.
 
-## o que já está vinculado
+## dois caminhos pra ler
+
+1. **direto da api da meta** (`graph.py`), grátis e sem limite de fontes. usa o
+   token de longa duração da variável de ambiente `IG_ACCESS_TOKEN`, do app
+   "Teste do jovvi-IG" no meta for developers (caso de uso "gerenciar
+   mensagens e conteúdo no instagram", api com login do instagram). é o
+   caminho principal quando a variável existe na sessão.
+2. **conector windsor.ai** (`mcp__Windsor_ai__*`), a reserva. plano Trial que
+   vira Free (1 fonte). detalhes abaixo.
+
+### graph.py
+
+```bash
+python3 .claude/skills/ig-metrics/graph.py --check          # o token funciona?
+python3 .claude/skills/ig-metrics/graph.py                  # 90 dias de posts, 30 de diário
+python3 .claude/skills/ig-metrics/graph.py --days 180
+python3 .claude/skills/ig-metrics/graph.py --refresh        # renova o token (vale 60 dias)
+```
+
+escreve em `instagram/data/` os mesmos arquivos e nomes de campo que o windsor
+escrevia (`posts.json`, `profile.json`, `daily_reach.json`,
+`daily_engagement.json`, `audience.json`), então o `metrics.py` roda igual, sem
+`--merge-public`: curtidas e comentários já vêm no `posts.json`.
+
+- sem `IG_ACCESS_TOKEN` na sessão o script para na hora e diz onde a variável
+  entra: nas configurações do ambiente do claude (menu do ambiente na barra de
+  título, editar, variáveis de ambiente), e uma sessão nova lê. nunca peça o
+  token no chat, nunca grave em arquivo do repositório.
+- o token tem que ter `instagram_business_basic` e
+  `instagram_business_manage_insights`. sem a segunda, cada post volta com
+  erro em `errors` dentro do `posts.json` e só sobram curtidas e comentários.
+  aí é adicionar a permissão em "permissões e recursos" e gerar o token de novo.
+- o token de longa duração vale 60 dias. `--refresh` imprime o novo, que vai
+  pras configurações do ambiente no lugar do antigo.
+- a api não entrega taxa de pulo dos reels de forma garantida. o script tenta
+  `ig_reels_skip_rate`; se a api não tiver, a coluna de retenção aos 3s fica
+  vazia e o tempo médio assistido vira a régua de gancho.
+- stories ficam de fora (só existem 24h). seguidores por post só vem pra
+  feed e carrossel, como no windsor.
+- `daily_engagement.json` pela api é o **total do período**, não por dia. o
+  diário por dia é só alcance e seguidores novos (`daily_reach.json`).
+
+## o que já está vinculado (windsor, a reserva)
 
 - conta windsor.ai: `jovvitcg@gmail.com` (plano Trial em 25/09/2026). a conta
   antiga, do gmail pessoal, ficou pra trás com 4 fontes e leitura pausada.
