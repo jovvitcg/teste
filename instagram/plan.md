@@ -96,3 +96,60 @@ normal, é o pessoal do sorteio saindo. não é motivo pra outro sorteio.
 o campo nome ("Joao Vitor") e a bio sem oferta continuam como estavam. o
 carrossel de 16/09 levou 248 pessoas ao perfil e 30 seguiram. as reescritas
 prontas estão na avaliação de 25/09. cinco minutos, antes de terça.
+
+---
+
+## atualização de 26/09, madrugada: o que o estudo vídeo por vídeo e o swipe gringo mudam
+
+(os arquivos: `instagram/estudo-videos-2026-09-26.md`, `instagram/swipe.md`,
+`instagram/stories-semana-2026-09-28.md`, `instagram/carrossel-raridade.md`,
+`instagram/comentarios-respostas-dm-2026-09-26.md`,
+`instagram/repurpose-2026-09-26.md`, `instagram/roteiros/semana-2026-09-28.md`
+com dois roteiros a mais.)
+
+**correção:** eu tinha escrito acima que "o segundo post do dia enterrou o
+primeiro três vezes". vendo os vídeos, é falso: em 15/07 os dois posts do dia
+foram os dois maiores hits do mês. o que morreu nos outros dias era Lorcana ou
+episódio repetido. dois posts por dia não faz mal quando os dois merecem.
+
+**o que muda na semana:**
+
+1. **sábado 03/10 deixa de ser "acertei?" e vira o jogo de 5 segundos:** "você
+   tem 5 segundos pra achar o pikachu nessa página". é o formato que fez 25x e
+   16x no Real Breaking Nate e não desgasta porque a página muda. gera o
+   mesmo comentário da série antiga ("achei / não achei"), gera loop, e mostra
+   o seu fichário. roteiro pronto no arquivo de roteiros.
+2. **20/10 entra no calendário agora:** o primeiro pacotinho de pokémon do
+   mundo saiu em 20/10/1996 no japão (11 cartas, 102 no set). faz 30 anos
+   exatos numa terça, no meio da coleção de 30 anos, que é o seu tema mais
+   forte. o canal gringo do seu tamanho fez 18x com "26 years ago today". o
+   roteiro está pronto: "20 de outubro de 1996. o primeiro pacotinho de
+   pokémon tinha 11 cartas."
+3. **um reel de notícia + posição por semana vira regra**, no molde do seu
+   melhor vídeo (22/09): print da fonte no quadro 1, título fixo, a posição
+   em uma frase, 60 a 75s, legenda com o assunto escrito. o `/ig-plan` chama
+   isso de "opinião". na sua conta, é o motor.
+4. **a série "se eu acertar" descansa um mês.** sete episódios em dez
+   semanas: 68 mil, 34, 28, 37, 27, 15, 7,6 mil.
+5. **Lorcana sai do feed.** três vídeos, três dos cinco piores.
+6. **meme uma vez por mês, template novo.** o repetido em 48h fez 6 vezes
+   menos.
+7. **as linhas mensais** (uma de cada por mês, nunca duas na mesma semana):
+   montagem de fichário com o pokémon da caixinha; quiz crossover com tema
+   novo; meme; god pack ou abertura com o resultado no título; o "cem cartas
+   entrando no sleeve" sem fala.
+8. **legenda sempre com o assunto escrito.** os seus cinco melhores posts são
+   invisíveis na busca porque a legenda é piada interna.
+
+**o calendário de outubro, por cima:**
+
+```
+SEMANA 28/09   opinião R$0,40 · tutorial guardar · página R$3,60 · jogo 5s · carrossel oferta
+SEMANA 05/10   resultado do sorteio · repurpose fonte 2 (scalper): #22 terça, #16 quinta, carrossel sábado
+SEMANA 12/10   repurpose fonte 1 (cancelada): #2 terça, carrossel quinta, #21 sábado · montagem do mês
+SEMANA 19/10   TER 20/10: 30 anos do primeiro pacotinho (efeméride) · quiz crossover · jogo 5s
+SEMANA 26/10   repurpose fonte 3 (só dinheiro) · meme do mês · god pack ou abertura com título
+```
+
+cada semana continua com um post por dia no máximo dois, três reels no
+mínimo, engajamento de 20 minutos antes de postar, e stories todo dia.
